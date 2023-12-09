@@ -29,8 +29,13 @@ const Card = () => {
 
   useEffect(() => {
     updateCardExpDate();
+  }, [mm, yy]);
+  
+  // Effect for form validation
+  useEffect(() => {
+    yycheck();
     validateForm();
-  }, [mm, yy, num, name, cvv]);
+  }, [mm, yy, num, name, cvv, yyError]);
 
   const validateForm = () => {
     const isValid =
@@ -188,22 +193,16 @@ const Card = () => {
     } else {
       const currentYear = new Date().getFullYear() % 100; // Get the last two digits of the current year
       const yyValue = parseInt(yy, 10);
-    
-      if (yyValue < 24 || yyValue > 99 || (yyValue === currentYear && mm >= 9)) {
+
+      if (yyValue < currentYear || (yyValue === currentYear && parseInt(mm, 10) < new Date().getMonth() + 1)) {
+        setYyError('Expired Card');
+        setYyBorder('1px solid red');
+      } else if (yyValue < 24 || yyValue > 99) {
         setYyError('Invalid year');
         setYyBorder('1px solid red');
       } else {
         setYyError('');
         setYyBorder('1px solid rgb(208, 208, 208)');
-      }
-    
-      // Additional check for card expiration
-      if (yyValue < currentYear + 24) {
-        setYyError('Expired Card');
-        setYyBorder('1px solid red');
-      } else if (yyValue === currentYear && mm < 9) {
-        setYyError('Expired Card');
-        setYyBorder('1px solid red');
       }
     }
   };
