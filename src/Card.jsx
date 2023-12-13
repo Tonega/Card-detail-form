@@ -29,13 +29,8 @@ const Card = () => {
 
   useEffect(() => {
     updateCardExpDate();
-  }, [mm, yy]);
-  
-  // Effect for form validation
-  useEffect(() => {
-    yycheck();
     validateForm();
-  }, [mm, yy, num, name, cvv, yyError]);
+  }, [mm, yy, num, name, cvv]);
 
   const validateForm = () => {
     const isValid =
@@ -64,7 +59,9 @@ const Card = () => {
     setNum(limitedNum);
     setNumError('');
     setNumBorder('1px solid rgb(208, 208, 208)');
-    updateCardNum(limitedNum);
+    if (showDetails) {
+      updateCardNum(limitedNum);
+    }
     validateForm();
   };
 
@@ -98,7 +95,11 @@ const Card = () => {
     setMm(limitedMm);
     setMmError('');
     setMmBorder('1px solid rgb(208, 208, 208)');
+    if (showDetails) {
+      updateCardExpDate();
+    }
   };
+  
   const handleYyChange = (event) => {
     const newYy = event.target.value;
     const formattedYy = newYy.replace(/\D/g, ''); // Remove non-numeric characters
@@ -107,8 +108,11 @@ const Card = () => {
     setYy(limitedYy);
     setYyError('');
     setYyBorder('1px solid rgb(208, 208, 208)');
+    if (showDetails) {
+      updateCardExpDate();
+    }
   };
-
+  
   const updateCardExpDate = () => {
     const mmCardElement = document.getElementById('expcard');
     if (mmCardElement) {
@@ -117,6 +121,7 @@ const Card = () => {
       mmCardElement.textContent = `${mmValue}/${yyValue}`;
     }
   };
+  
 
   const handleCvvChange = (event) => {
     const newCvv = event.target.value;
@@ -138,20 +143,26 @@ const Card = () => {
 
   const handleFormSubmit = (event) => {
     event.preventDefault(); // Add this line to prevent the default form submission behavior
-
+  
     namecheck();
     numcheck();
     mmcheck();
     yycheck();
     cvvcheck();
-
-    if (formValidity) {
+  
+    const currentYear = new Date().getFullYear() % 100;
+    const yyValue = parseInt(yy, 10);
+  
+    if (formValidity && yyValue >= 24) {
       const cardDetails = { name, cardNumber: num, expiryDate: `${mm}/${yy}`, cvv };
       setCardDetails(cardDetails);
       setFormSubmitted(true);
+    } else {
+      // Handle the case where the form is not valid or the year is less than 2024
+      // You can display an error message or take appropriate action here
+      console.error('Form is not valid or year is less than 2024');
     }
   };
-
   const namecheck = () => {
     if (!name.trim()) {
       setNameError('Name can\'t be blank');
@@ -188,24 +199,32 @@ const Card = () => {
 
   const yycheck = () => {
     if (!yy.trim()) {
-      setYyError('Can\'t be blank');
+      setYyError("Can't be blank");
       setYyBorder('1px solid red');
     } else {
       const currentYear = new Date().getFullYear() % 100; // Get the last two digits of the current year
       const yyValue = parseInt(yy, 10);
-
-      if (yyValue < currentYear || (yyValue === currentYear && parseInt(mm, 10) < new Date().getMonth() + 1)) {
-        setYyError('Expired Card');
-        setYyBorder('1px solid red');
-      } else if (yyValue < 24 || yyValue > 99) {
+  
+      if (yyValue < 24 || yyValue > 99 || (yyValue === currentYear && mm >= 9)) {
         setYyError('Invalid year');
         setYyBorder('1px solid red');
       } else {
         setYyError('');
         setYyBorder('1px solid rgb(208, 208, 208)');
       }
+  
+      // Additional check for card expiration
+      if (yyValue < currentYear + 24) {
+        setYyError('Expired Card');
+        setYyBorder('1px solid red');
+      } else if (yyValue === currentYear && mm < 9) {
+        setYyError('Expired Card');
+        setYyBorder('1px solid red');
+      }
     }
   };
+  
+  
   
   
 
@@ -218,6 +237,13 @@ const Card = () => {
       setCvvBorder('1px solid red');
     }
   };
+//////////////////////////////////////////////
+const [showDetails, setShowDetails] = useState(true);
+
+const handleToggleDetails = () => {
+  setShowDetails(!showDetails);
+};
+
 
   return (
     <>
@@ -226,22 +252,42 @@ const Card = () => {
       ) : (
         <main>
 
-          <div className='bg'>
-            <div className='cardback'>
-              <img className='back-img' src={img} alt="" />
-              <p id="cvvcard" className='cvvcard'>000</p>
+            <div className="bg">
+            <div className="cardback">
+              <img className="back-img" src={img} alt="" />
+              {showDetails && (
+                <p id="cvvcard" className="cvvcard">
+                  000
+                </p>
+              )}
             </div>
-            <div className='cardfront'>
-              <img className='front-img' src={img1} alt="" />
-              <p id="numcard" className='numcard'>0000 0000 0000 0000</p>
-              <p id="namecard" className='namecard'>Jane Appleseed</p>
-              <p id="expcard" className='expcard'>00/00</p>
+            <div className="cardfront">
+              <img className="front-img" src={img1} alt="" />
+              <p id="numcard" className="numcard">
+    {showDetails ? (num || "0000 0000 0000 0000") : "**** **** **** " + num.slice(-4)}
+  </p>
+              <p id="namecard" className="namecard">
+                Jane Appleseed
+              </p>
+              {showDetails && (
+                <p id="expcard" className="expcard">
+                  {`${mm || '00'}/${yy || '00'}`}
+                </p>
+              )}
+              <p
+                id="show-hide"
+                className="show-hide"
+                onClick={handleToggleDetails}
+              >
+                {showDetails ? "Hide Details" : "Show Details"}
+              </p>
               <div id="emblems">
                 <div id="circlebig"></div>
                 <div id="circlesmall"></div>
               </div>
             </div>
           </div>
+
 
           <form className='form' onSubmit={handleFormSubmit}>
             <div className='container'>
