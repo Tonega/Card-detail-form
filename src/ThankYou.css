@@ -137,21 +137,7 @@
   color: var(--Dark-grayish-violet);
 }
 
-.attribution{
-    font-size: 0.9rem;
-    text-align: center;
-    color: var(--Dark-grayish-violet);
-    margin-top: 20px;
-  }
-  
-  .attribution a{
-    color: var(--Dark-grayish-violet);
-    text-decoration: none;
-  }
-  
-  .attribution a:hover{
-    color: var(--Very-dark-violet);
-  }
+
 
 @media (min-width: 779px){
   main{
