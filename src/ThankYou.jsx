@@ -8,6 +8,7 @@ const ThankYou = ({ cardDetails }) => {
   const { name, cardNumber, expiryDate, cvv } = cardDetails;
 
   return (
+    <>
     <main>
       <div className='bg'>
         <div className='cardback'>
@@ -34,6 +35,11 @@ const ThankYou = ({ cardDetails }) => {
         <p id="text-end">We've added your card details</p>
       </div>
     </main>
+    <div class="attribution">
+        Challenge by <a href="https://www.frontendmentor.io?ref=challenge" target="_blank">Frontend Mentor</a>. 
+        Coded by <a href="https://github.com/Tonega">Tony</a>.
+         </div>
+    </>
   );
 };
 
